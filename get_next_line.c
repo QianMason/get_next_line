@@ -50,7 +50,7 @@ int		read_helper(int ret, char *buff, char **filed, char **line)
 	if (!*filed) // since it might be the case the buffer read size is less than an actual line, its done in a loop, and we are joining strings together, we have to free the old one so we use temp and do a check
 		*filed = ft_strnew(0);
 	temp = ft_strjoin(*filed, buff);
-	ft_memdel((void **) &*filed);
+	ft_memdel((void **)&*filed);
 	*filed = temp;
 	if (ft_strchr(*filed, '\n')) //line is found in the buff, extract it and reset, then return 1, if not found return 0, and call read again.
 	{
@@ -99,6 +99,8 @@ int		get_next_line(const int fd, char **line)
 
 	if (fd < 0 || !line)
 		return (-1);
+	if (filed[fd]) //LEAK FIX checks for existence fd first, if not, its the first instance, so don't free the line, otherwise, free each line
+		ft_memdel((void**)&*line);
 	while ((ret = read(fd, buff, BUFF_SIZE)) > 0)
 	{
 		if (read_helper(ret, buff, &filed[fd], &*line))
